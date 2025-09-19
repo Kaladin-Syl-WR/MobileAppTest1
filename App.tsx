@@ -1,11 +1,11 @@
 import React, { useCallback, useReducer } from 'react';
-import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Text, Pressable, BackHandler } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { gameReducer, createInitialState } from './src/game/reducer';
 import { useGameLoop } from './src/hooks/useGameLoop';
 import { GameBoard } from './src/components/GameBoard';
 import { ScoreBoard } from './src/components/ScoreBoard';
-import { Controls } from './src/components/Controls';
+import { GesturePad } from './src/components/GesturePad';
 import { Direction } from './src/types/game';
 
 export default function App() {
@@ -33,15 +33,29 @@ export default function App() {
     dispatch({ type: 'CHANGE_DIRECTION', payload: direction });
   }, []);
 
+  const handleQuit = useCallback(() => {
+    BackHandler.exitApp();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
       <View style={styles.container}>
-        <Text style={styles.title}>Snake</Text>
+        <View style={styles.header}>
+          <Pressable
+            style={[styles.quitButton, styles.quitButtonFloating]}
+            onPress={handleQuit}
+            accessibilityLabel="Quit the app"
+          >
+            <Text style={styles.quitButtonText}>Quit</Text>
+          </Pressable>
+          <Text style={styles.title}>Snake</Text>
+        </View>
         <GameBoard
           snake={state.snake}
           food={state.food}
           status={state.status}
+          onRequestResume={handleTogglePause}
         />
         <ScoreBoard
           score={state.score}
@@ -51,12 +65,16 @@ export default function App() {
           onTogglePause={handleTogglePause}
           onReset={handleReset}
         />
-        <Controls status={state.status} onChangeDirection={handleDirectionChange} />
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Tap Start to begin. Use the arrows to change direction. Avoid walls and your tail!
-          </Text>
-        </View>
+        {(state.status === 'running' || state.status === 'paused') && (
+          <GesturePad status={state.status} onSwipe={handleDirectionChange} />
+        )}
+        {!(state.status === 'running' || state.status === 'paused') && (
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Tap Start to begin. When the game is running, swipe inside the control zone to steer. Avoid walls and your tail!
+            </Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -74,11 +92,36 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     gap: 16
   },
+  header: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 8,
+    paddingBottom: 8,
+    position: 'relative'
+  },
+  quitButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 9999,
+    borderWidth: 2,
+    borderColor: '#f87171',
+    backgroundColor: 'rgba(248, 113, 113, 0.15)'
+  },
+  quitButtonFloating: {
+    position: 'absolute',
+    left: 0,
+    top: 8
+  },
+  quitButtonText: {
+    color: '#fda4af',
+    fontSize: 14,
+    fontWeight: '700'
+  },
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#38bdf8',
-    marginTop: 8
+    color: '#38bdf8'
   },
   footer: {
     marginTop: 'auto',

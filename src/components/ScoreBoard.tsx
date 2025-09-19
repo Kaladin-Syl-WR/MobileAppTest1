@@ -34,7 +34,25 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
 }) => {
   const canStart = status === 'idle' || status === 'gameover';
   const isRunning = status === 'running';
-  const isPaused = status === 'paused';
+  const isLive = status === 'running' || status === 'paused';
+
+  if (isLive) {
+    return (
+      <View style={styles.liveContainer}>
+        <View style={styles.liveScore}>
+          <Text style={styles.liveScoreLabel}>Score</Text>
+          <Text style={styles.liveScoreValue}>{score}</Text>
+        </View>
+        <Pressable
+          style={styles.pauseButton}
+          onPress={onTogglePause}
+          accessibilityLabel={isRunning ? 'Pause game' : 'Resume game'}
+        >
+          <Text style={styles.pauseIcon}>{isRunning ? '⏸' : '▶'}</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -54,13 +72,6 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
       <View style={styles.actions}>
         <Pressable style={[styles.button, styles.primaryButton, !canStart && styles.buttonDisabled]} onPress={onStart} disabled={!canStart}>
           <Text style={styles.buttonText}>{status === 'gameover' ? 'Play Again' : 'Start'}</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.button, styles.secondaryButton, !(isRunning || isPaused) && styles.buttonDisabled]}
-          onPress={onTogglePause}
-          disabled={!(isRunning || isPaused)}
-        >
-          <Text style={styles.buttonText}>{isRunning ? 'Pause' : 'Resume'}</Text>
         </Pressable>
         <Pressable
           style={[styles.button, styles.destructiveButton, status === 'idle' && styles.buttonDisabled]}
@@ -131,13 +142,54 @@ const styles = StyleSheet.create({
   primaryButton: {
     backgroundColor: '#22d3ee'
   },
-  secondaryButton: {
-    backgroundColor: '#38bdf8'
-  },
   destructiveButton: {
     backgroundColor: '#f87171'
   },
   buttonDisabled: {
     opacity: 0.4
+  },
+  liveContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8
+  },
+  liveScore: {
+    flex: 1,
+    marginRight: 12,
+    backgroundColor: '#111827',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#22d3ee',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    gap: 4
+  },
+  liveScoreLabel: {
+    color: '#94a3b8',
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2
+  },
+  liveScoreValue: {
+    color: '#f8fafc',
+    fontSize: 22,
+    fontWeight: '700'
+  },
+  pauseButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 9999,
+    backgroundColor: '#38bdf8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#22d3ee'
+  },
+  pauseIcon: {
+    color: '#0f172a',
+    fontSize: 26,
+    fontWeight: '800'
   }
 });

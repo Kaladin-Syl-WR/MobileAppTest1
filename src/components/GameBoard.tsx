@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Pressable, Text } from 'react-native';
 import { GRID_SIZE } from '../constants/game';
 import { Position } from '../types/game';
 
@@ -7,11 +7,12 @@ interface GameBoardProps {
   snake: Position[];
   food: Position;
   status: 'idle' | 'running' | 'paused' | 'gameover';
+  onRequestResume: () => void;
 }
 
 const BOARD_PADDING = 16;
 
-const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, status }) => {
+const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, status, onRequestResume }) => {
   const { width, height } = useWindowDimensions();
 
   const { size, cellSize } = useMemo(() => {
@@ -26,7 +27,8 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, status }) =
   }, [width, height]);
 
   return (
-    <View style={[styles.board, { width: size, height: size }]}
+    <View
+      style={[styles.board, { width: size, height: size }]}
       accessibilityLabel={`Game board (${status})`}>
       {status === 'idle' && <View style={styles.overlay} />}
       {Array.from({ length: GRID_SIZE }).map((_, rowIndex) => (
@@ -65,8 +67,20 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, status }) =
           }
         ]}
       />
+      {status === 'paused' && (
+        <View style={[styles.overlay, styles.overlayPaused]}>
+          <Pressable
+            onPress={onRequestResume}
+            style={styles.overlayButton}
+            accessibilityRole="button"
+            accessibilityLabel="Resume game"
+          >
+            <Text style={styles.overlayButtonText}>Start</Text>
+          </Pressable>
+        </View>
+      )}
       {status === 'gameover' && (
-        <View style={styles.overlay} />
+        <View style={[styles.overlay, styles.overlayGameOver]} />
       )}
     </View>
   );
@@ -95,6 +109,27 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(15, 23, 42, 0.45)'
+  },
+  overlayPaused: {
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  overlayGameOver: {
+    backgroundColor: 'rgba(15, 23, 42, 0.55)'
+  },
+  overlayButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 9999,
+    backgroundColor: '#38bdf8',
+    borderWidth: 2,
+    borderColor: '#22d3ee'
+  },
+  overlayButtonText: {
+    color: '#0f172a',
+    fontSize: 18,
+    fontWeight: '800'
   },
   rowGuide: {
     position: 'absolute',
