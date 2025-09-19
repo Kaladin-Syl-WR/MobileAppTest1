@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Expo & Metro bundler
+.expo/
+.expo-shared/
+web-build/
+
+# Build outputs
+dist/
+android/
+ios/
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.expo-dev-tools/
+.expo-packager-cache/
+.expo/android-apk-cache/
+.expo/ios-simulator-app-cache/
+
+# Environment files
+.env
+.env.*
+
+# macOS
+.DS_Store
