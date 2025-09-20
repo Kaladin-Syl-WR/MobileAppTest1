@@ -1,5 +1,5 @@
-import React, { useCallback, useReducer } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, Pressable, BackHandler } from 'react-native';
+import React, { useCallback, useEffect, useReducer } from 'react';
+import { SafeAreaView, StyleSheet, View, Text, Pressable, BackHandler, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { gameReducer, createInitialState } from './src/game/reducer';
 import { useGameLoop } from './src/hooks/useGameLoop';
@@ -32,6 +32,58 @@ export default function App() {
   const handleDirectionChange = useCallback((direction: Direction) => {
     dispatch({ type: 'CHANGE_DIRECTION', payload: direction });
   }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      return undefined;
+    }
+
+    const target = typeof window === 'undefined' ? null : window;
+
+    if (!target) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      let nextDirection: Direction | null = null;
+
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+          nextDirection = 'UP';
+          break;
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+          nextDirection = 'DOWN';
+          break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+          nextDirection = 'LEFT';
+          break;
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+          nextDirection = 'RIGHT';
+          break;
+        default:
+          break;
+      }
+
+      if (nextDirection) {
+        event.preventDefault();
+        handleDirectionChange(nextDirection);
+      }
+    };
+
+    target.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      target.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleDirectionChange]);
 
   const handleQuit = useCallback(() => {
     BackHandler.exitApp();
