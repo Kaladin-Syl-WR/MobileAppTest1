@@ -1,22 +1,23 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions, Pressable, Text } from 'react-native';
 import { GRID_SIZE } from '../constants/game';
-import { Position } from '../types/game';
+import { Obstacle, Position } from '../types/game';
 
 interface GameBoardProps {
   snake: Position[];
   food: Position;
+  obstacles: Obstacle[];
   status: 'idle' | 'running' | 'paused' | 'gameover';
   onRequestResume: () => void;
 }
 
-const BOARD_PADDING = 16;
+const BOARD_PADDING = 12;
 
-const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, status, onRequestResume }) => {
+const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, obstacles, status, onRequestResume }) => {
   const { width, height } = useWindowDimensions();
 
   const { size, cellSize } = useMemo(() => {
-    const maxBoardSize = Math.min(width - BOARD_PADDING * 2, height * 0.6);
+    const maxBoardSize = Math.min(width - BOARD_PADDING * 2, height * 0.8);
     const computedCellSize = Math.max(12, Math.floor(maxBoardSize / GRID_SIZE));
     const boardPixelSize = computedCellSize * GRID_SIZE;
 
@@ -54,6 +55,24 @@ const GameBoardComponent: React.FC<GameBoardProps> = ({ snake, food, status, onR
           ]}
         />
       ))}
+      {obstacles.map((obstacle, obstacleIndex) =>
+        obstacle.cells.map((cell, cellIndex) => (
+          <View
+            key={`obstacle-${obstacleIndex}-${cell.x}-${cell.y}-${cellIndex}`}
+            style={[
+              styles.obstacle,
+              {
+                width: cellSize,
+                height: cellSize,
+                transform: [
+                  { translateX: cell.x * cellSize },
+                  { translateY: cell.y * cellSize }
+                ]
+              }
+            ]}
+          />
+        ))
+      )}
       <View
         style={[
           styles.food,
@@ -98,6 +117,13 @@ const styles = StyleSheet.create({
   snake: {
     position: 'absolute',
     borderRadius: 6
+  },
+  obstacle: {
+    position: 'absolute',
+    backgroundColor: '#f97316',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#fdba74'
   },
   food: {
     position: 'absolute',

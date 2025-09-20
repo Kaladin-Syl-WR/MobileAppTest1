@@ -5,6 +5,10 @@ export interface Position {
   y: number;
 }
 
+export interface Obstacle {
+  cells: Position[];
+}
+
 export type GameStatus = 'idle' | 'running' | 'paused' | 'gameover';
 
 export interface GameState {
@@ -12,6 +16,8 @@ export interface GameState {
   direction: Direction;
   queuedDirection: Direction;
   food: Position;
+  obstacles: Obstacle[];
+  phaseIndex: number;
   status: GameStatus;
   score: number;
   highScore: number;

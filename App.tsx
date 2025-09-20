@@ -106,6 +106,7 @@ export default function App() {
         <GameBoard
           snake={state.snake}
           food={state.food}
+          obstacles={state.obstacles}
           status={state.status}
           onRequestResume={handleTogglePause}
         />
@@ -123,7 +124,7 @@ export default function App() {
         {!(state.status === 'running' || state.status === 'paused') && (
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Tap Start to begin. When the game is running, swipe inside the control zone to steer. Avoid walls and your tail!
+              Tap Start to begin. When the game is running, swipe inside the control zone to steer. Wrap through edges, but avoid your tail and any obstacles!
             </Text>
           </View>
         )}
